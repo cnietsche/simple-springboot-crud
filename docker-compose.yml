@@ -1,10 +1,31 @@
 services:
-  app:
-    build: .
-    stdin_open: true
-    tty: true
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: h2
+      H2_DATA_PATH: /app/data
+    expose:
+      - "8080"
     volumes:
-      - user-data:/app/data
+      - backend-data:/app/data
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
 
 volumes:
-  user-data:
+  backend-data:

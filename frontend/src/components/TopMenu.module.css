@@ -1,0 +1,58 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  background: #1e293b;
+  color: #f8fafc;
+  z-index: 100;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+}
+
+.link,
+.active,
+.linkButton {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  padding: 0.25rem 0;
+}
+
+.link:hover,
+.linkButton:hover,
+.active {
+  color: #fff;
+}
+
+.active {
+  border-bottom: 2px solid #38bdf8;
+}
+
+.logout {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+}
+
+.logout:hover {
+  background: #dc2626;
+}

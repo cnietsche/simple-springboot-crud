@@ -1,32 +1,64 @@
-# CRUD de Usuários (Java + H2)
+# CNietsche — User CRUD
 
-Aplicação de console simples para gerenciar a entidade **USER** (`id: UUID`, `name: String`) com persistência em banco H2 em arquivo.
+Monorepo com **backend** (Spring Boot 21, arquitetura hexagonal) e **frontend** (React + TypeScript).
 
-## Requisitos
+## Estrutura
 
-- Java 17+
-- Maven 3.8+
-
-## Executar
-
-```bash
-mvn -q compile exec:java -Dexec.mainClass="com.example.crud.App"
+```
+├── backend/     # API REST (H2 por padrão, perfil postgres preparado)
+├── frontend/    # SPA React com proxy Nginx → backend
+└── docker-compose.yml
 ```
 
-Ou gerar um JAR executável:
+## Docker
+
+Build (executa testes em cada imagem):
 
 ```bash
-mvn -q package
-java -jar target/user-crud-h2-1.0.0.jar
+docker compose build
 ```
 
-## Menu
+Subir:
 
-| Opção | Ação                          |
-|-------|-------------------------------|
-| 1     | Inserir usuário (nome)        |
-| 2     | Listar todos                  |
-| 3     | Excluir por UUID              |
-| 0     | Sair                          |
+```bash
+docker compose up -d
+```
 
-O banco fica em `./data/users.mv.db` (criado automaticamente na primeira execução).
+Acesse: **http://localhost:8080**
+
+- Apenas o **frontend** é exposto no host (`8080`).
+- O **backend** fica acessível só na rede interna do Compose; o Nginx encaminha `/api` para ele.
+
+## API (via frontend)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| POST | `/api/users` | Criar usuário |
+| GET | `/api/users/{id}` | Ver usuário (name, email, type) |
+| POST | `/api/auth/login` | Login (e-mail ou username + senha) |
+| PATCH | `/api/users/{id}/type` | Alterar tipo (ADMIN / USER) |
+
+## Banco de dados
+
+**Padrão:** perfil `h2` — arquivo em volume Docker `backend-data`.
+
+**Futuro (Supabase / PostgreSQL):** copie `.env.example` para `.env`, defina `SPRING_PROFILES_ACTIVE=postgres` e as variáveis `DATABASE_*`. Veja `backend/src/main/resources/application-postgres.yml`.
+
+## Desenvolvimento local
+
+**Backend** (requer Maven e Java 21):
+
+```bash
+cd backend
+mvn spring-boot:run -Dspring-boot.run.profiles=h2
+```
+
+**Frontend** (requer Node 20+):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+O Vite faz proxy de `/api` para `http://localhost:8080`.
