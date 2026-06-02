@@ -25,7 +25,7 @@ public class OverloadJpaEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserJpaEntity user;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "payload", nullable = false, length = 255)
     private String value;
 
     protected OverloadJpaEntity() {

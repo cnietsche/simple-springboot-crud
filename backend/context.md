@@ -155,7 +155,7 @@ backend/
 
 - `User`: classe com campos `final`, construtor explícito, getters; imutabilidade com `withType(UserType)` retornando nova instância.
 - `UserType`: enum `ADMIN`, `USER`.
-- `Overload`: `id`, `date`, `userId`, `value` (máx. 255 chars); tabela `overloads` com FK `user_id`.
+- `Overload`: `id`, `date`, `userId`, `value` (máx. 255 chars); tabela `overloads` com FK `user_id`; coluna JPA `payload` (palavra `value` é reservada no H2).
 - `StatisticsPeriod`: janelas de tempo compartilhadas para dashboards (`LAST_30_MINUTES` … `THIS_YEAR`); resolução em `StatisticsPeriodResolver`.
 - `RecordBatchSize`: tamanhos de lote compartilhados (50, 100, 400, 1000); mapeamento HTTP em `RecordBatchSizeMapper`.
 - IDs: `java.util.UUID`, gerados em `CreateUserService` via `UUID.randomUUID()`.
