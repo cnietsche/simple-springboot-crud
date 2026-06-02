@@ -4,6 +4,7 @@ import com.cnietsche.domain.model.User;
 import com.cnietsche.domain.port.out.UserRepositoryPort;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +47,13 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     @Override
     public boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
+    }
+
+    @Override
+    public List<User> findAllOrderByName() {
+        return repository.findAllByOrderByNameAsc().stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     private UserJpaEntity toEntity(User user) {

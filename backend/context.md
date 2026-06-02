@@ -12,8 +12,12 @@ API REST de gerenciamento de usuários (`user-api`), artefato Maven `com.cnietsc
 | `GET` | `/api/users/{id}` | Retorna `name`, `email`, `type` (sem expor senha) |
 | `PATCH` | `/api/users/{id}/type` | Altera `UserType` |
 | `POST` | `/api/auth/login` | Valida credenciais e retorna dados do usuário autenticado |
+| `GET` | `/api/users` | Lista `id` + `name`, ordenado por nome |
+| `POST` | `/api/overloads/generate` | Gera N registros de overload para um usuário |
+| `GET` | `/api/overloads` | Lista paginada por `userId`, ordenada por `date` DESC |
+| `GET` | `/api/overloads/statistics` | Agregações por período e usuário (dashboard) |
 
-Não há listagem de usuários, exclusão, atualização de perfil completa nem endpoints de refresh/token.
+Não há exclusão de usuário, atualização de perfil completa nem endpoints de refresh/token.
 
 ---
 
@@ -151,6 +155,9 @@ backend/
 
 - `User`: classe com campos `final`, construtor explícito, getters; imutabilidade com `withType(UserType)` retornando nova instância.
 - `UserType`: enum `ADMIN`, `USER`.
+- `Overload`: `id`, `date`, `userId`, `value` (máx. 255 chars); tabela `overloads` com FK `user_id`.
+- `StatisticsPeriod`: janelas de tempo compartilhadas para dashboards (`LAST_30_MINUTES` … `THIS_YEAR`); resolução em `StatisticsPeriodResolver`.
+- `RecordBatchSize`: tamanhos de lote compartilhados (50, 100, 400, 1000); mapeamento HTTP em `RecordBatchSizeMapper`.
 - IDs: `java.util.UUID`, gerados em `CreateUserService` via `UUID.randomUUID()`.
 
 ## DTOs da API (`adapter.in.web.dto`)

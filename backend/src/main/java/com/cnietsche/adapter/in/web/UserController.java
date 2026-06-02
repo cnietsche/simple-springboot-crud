@@ -4,12 +4,14 @@ import com.cnietsche.adapter.in.web.dto.ChangeTypeRequest;
 import com.cnietsche.adapter.in.web.dto.CreateUserRequest;
 import com.cnietsche.adapter.in.web.dto.CreateUserResponse;
 import com.cnietsche.adapter.in.web.dto.UserResponse;
+import com.cnietsche.adapter.in.web.dto.UserSummaryResponse;
 import com.cnietsche.domain.model.User;
 import com.cnietsche.domain.port.in.ChangeUserTypeCommand;
 import com.cnietsche.domain.port.in.ChangeUserTypeUseCase;
 import com.cnietsche.domain.port.in.CreateUserCommand;
 import com.cnietsche.domain.port.in.CreateUserUseCase;
 import com.cnietsche.domain.port.in.GetUserUseCase;
+import com.cnietsche.domain.port.in.ListUsersUseCase;
 import com.cnietsche.domain.port.in.UserView;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,14 +34,24 @@ public class UserController {
     private final CreateUserUseCase createUserUseCase;
     private final GetUserUseCase getUserUseCase;
     private final ChangeUserTypeUseCase changeUserTypeUseCase;
+    private final ListUsersUseCase listUsersUseCase;
 
     public UserController(
             CreateUserUseCase createUserUseCase,
             GetUserUseCase getUserUseCase,
-            ChangeUserTypeUseCase changeUserTypeUseCase) {
+            ChangeUserTypeUseCase changeUserTypeUseCase,
+            ListUsersUseCase listUsersUseCase) {
         this.createUserUseCase = createUserUseCase;
         this.getUserUseCase = getUserUseCase;
         this.changeUserTypeUseCase = changeUserTypeUseCase;
+        this.listUsersUseCase = listUsersUseCase;
+    }
+
+    @GetMapping
+    public List<UserSummaryResponse> list() {
+        return listUsersUseCase.execute().stream()
+                .map(u -> new UserSummaryResponse(u.id(), u.name()))
+                .toList();
     }
 
     @PostMapping

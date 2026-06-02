@@ -9,7 +9,7 @@ SPA (Single Page Application) React que serve como interface do monorepo `simple
 | Rota | Acesso | Conteúdo |
 |------|--------|----------|
 | `/login` | Público | Login e cadastro (abas) |
-| `/` | Protegido | Home com saudação ao usuário logado |
+| `/` | Protegido | Home: USER gera/lista overload; ADMIN vê dashboard com gráficos |
 | `*` | — | Redireciona para `/` |
 
 **Deploy:** build estático servido por Nginx; em Docker, proxy de `/api/` para o serviço `backend:8080`. Em desenvolvimento, Vite faz proxy de `/api` para `http://localhost:8080`.
@@ -34,6 +34,8 @@ SPA (Single Page Application) React que serve como interface do monorepo `simple
 | Node | 22 Alpine (build Docker) | `Dockerfile` |
 | CSS Modules | nativo Vite | `*.module.css` importados nos componentes |
 | Fetch API | nativo | `api/client.ts` → `fetch` |
+
+**Charts:** Recharts (`PieChart`, `LineChart`) no `AdminOverloadDashboard`.
 
 **Não identificado no frontend:** Redux, Zustand, TanStack Query, Axios, UI kit (MUI, Chakra), Tailwind, ESLint/Prettier configurados, i18n, PWA, SSR.
 
@@ -125,6 +127,7 @@ frontend/
 |-----------|------------------|
 | `api/` | Funções assíncronas que chamam o backend; sem lógica de UI |
 | `types/` | Contratos TypeScript alinhados ao JSON da API |
+| `types/statistics.ts` | `StatisticsPeriod`, `RecordBatchCount` — compartilhados entre dashboards |
 | `context/` | Estado de sessão do usuário autenticado |
 | `hooks/` | Ponto único de import para `useAuth` |
 | `pages/` | Telas ligadas a rotas |
@@ -212,7 +215,7 @@ Se já autenticado: `<Navigate to="/" />` imediato.
 ## Layout autenticado (`AppLayout`)
 
 1. `TopMenu` + `<Outlet />` (renderiza `HomePage` em `/`).
-2. Botão Configurações abre `SettingsModal` (estado local `settingsOpen`).
+2. Ícone de engrenagem (à esquerda do Logoff) abre `SettingsModal` (estado local `settingsOpen`).
 
 ## Alterar tipo (`SettingsModal`)
 
@@ -303,6 +306,10 @@ Estados locais: `error`, `loading` (e `success` onde aplicável).
 | `createUser` | POST | `/api/users` | `LoginPage` (cadastro) |
 | `getUser` | GET | `/api/users/{id}` | **Definido, não utilizado** em nenhum componente |
 | `changeUserType` | PATCH | `/api/users/{id}/type` | `SettingsModal` |
+| `listUsers` | GET | `/api/users` | `AdminOverloadDashboard` |
+| `generateOverload` | POST | `/api/overloads/generate` | `UserOverloadPanel` |
+| `listOverloads` | GET | `/api/overloads` | `UserOverloadPanel` |
+| `getOverloadStatistics` | GET | `/api/overloads/statistics` | `AdminOverloadDashboard` (refresh 5s) |
 
 ### Proxy
 

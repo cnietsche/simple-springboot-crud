@@ -45,7 +45,7 @@ Browser → [Nginx + SPA] → proxy /api → [Spring Boot] → H2 | PostgreSQL
 | `frontend/` | UI, rotas, cliente HTTP, sessão client-side |
 | `docker-compose.yml` | Sobe FE + BE; volume H2 no backend |
 
-Único domínio de produto hoje: **usuário**. Infra: Dockerfiles + `nginx.conf` no frontend.
+Domínios de produto: **usuário** e **overload** (teste de resiliência). Infra: Dockerfiles + `nginx.conf` no frontend.
 
 ---
 
@@ -57,6 +57,10 @@ Browser → [Nginx + SPA] → proxy /api → [Spring Boot] → H2 | PostgreSQL
 | Login | `/login` | `POST /api/auth/login` | `identifier` = e-mail ou username |
 | Área logada | `/` | — | Dados do Context; home não chama API |
 | Alterar tipo | Modal Configurações | `PATCH /api/users/{id}/type` | Atualiza banco e Context |
+| Gerar overload | Home (USER) | `POST /api/overloads/generate` | `userId` + `count` (50/100/400/1000) |
+| Listar overload | Home (USER) | `GET /api/overloads` | Paginado por `userId`, 50/página, `date` DESC |
+| Estatísticas overload | Home (ADMIN) | `GET /api/overloads/statistics` | `period` + `userId` opcional; refresh 5s na UI |
+| Listar usuários | Dashboard ADMIN | `GET /api/users` | `id` + `name`, ordem alfabética |
 | Consultar por ID | **Não usado** | `GET /api/users/{id}` | Cliente `getUser` existe; sem tela |
 
 Regras transversais: tipos `ADMIN`/`USER`; senha nunca volta no JSON; duplicidade e-mail/username → 409; senha mín. 6 (BE + HTML5 no FE).
@@ -72,13 +76,17 @@ Regras transversais: tipos `ADMIN`/`USER`; senha nunca volta no JSON; duplicidad
 | POST | `/api/auth/login` | `identifier`, `password` | `{ id, name, email, type }` |
 | POST | `/api/users` | `name`, `email`, `username`, `password`, `type?` | `201` + mesmo shape com `id` |
 | PATCH | `/api/users/{id}/type` | `{ type }` | `{ name, email, type }` |
+| GET | `/api/users` | — | `[{ id, name }]` |
 | GET | `/api/users/{id}` | — | `{ name, email, type }` (sem `id`; UI não consome) |
+| POST | `/api/overloads/generate` | `{ userId, count }` | `{ created }` |
+| GET | `/api/overloads` | query: `userId`, `page`, `size` | página com `content[]` (`id`, `date`, `userId`, `value`) |
+| GET | `/api/overloads/statistics` | query: `period`, `userId?` | `{ topUsers[], timeSeries[] }` |
 
 **Erros:** sempre `{ "message": "..." }` (mensagens em inglês no backend; UI pode usar fallback em PT).
 
 **Autenticação HTTP:** só no POST de login. Demais chamadas **sem** token/cookie.
 
-**Não existe hoje:** paginação, filtros por query, upload/download, versionamento `/api/v1`.
+**Paginação:** `GET /api/overloads` (page/size). **Filtros por query:** estatísticas de overload (`period`, `userId`). Sem upload/download nem versionamento `/api/v1`.
 
 ### Divergências FE ↔ BE
 
@@ -149,7 +157,7 @@ Atualizar `backend/context.md` / `frontend/context.md` (e este arquivo) se o con
 3. Auth **só na UX** (`sessionStorage`); backend **stateless e aberto** após login.
 4. Erros: `{ "message" }`; UI em PT, mensagens da API em EN.
 5. `GET /api/users/{id}` no BE; **não usado** na UI.
-6. Sem paginação, OAuth, filas ou proteção por `ADMIN`.
+6. Paginação em overload; sem OAuth, filas ou proteção por `ADMIN` na API.
 7. Detalhes de implementação: **`backend/context.md`** e **`frontend/context.md`**.
 
 ---

@@ -2,6 +2,7 @@ package com.cnietsche.domain.port.out;
 
 import com.cnietsche.domain.model.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +19,6 @@ public interface UserRepositoryPort {
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);
+
+    List<User> findAllOrderByName();
 }
