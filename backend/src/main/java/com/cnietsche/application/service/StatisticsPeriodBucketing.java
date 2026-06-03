@@ -6,7 +6,10 @@ import com.cnietsche.domain.port.in.LoginAttemptsBucketView;
 import com.cnietsche.domain.port.in.TimeSeriesBucketView;
 import com.cnietsche.domain.port.out.LoginAttemptPoint;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +18,17 @@ public final class StatisticsPeriodBucketing {
     private StatisticsPeriodBucketing() {
     }
 
+    public static LocalDateTime resolveQueryFrom(StatisticsPeriod period, LocalDateTime now) {
+        return generateBucketStarts(period, now).getFirst();
+    }
+
     public static List<LocalDateTime> generateBucketStarts(StatisticsPeriod period, LocalDateTime now) {
-        LocalDateTime from = StatisticsPeriodResolver.resolveStart(period, now);
         BucketConfig config = bucketConfig(period);
+        LocalDateTime alignedEnd = alignUp(now, config);
+        LocalDateTime firstStart = retreat(alignedEnd, config, config.partCount());
+
         List<LocalDateTime> starts = new ArrayList<>(config.partCount());
-        LocalDateTime bucketStart = from;
+        LocalDateTime bucketStart = firstStart;
         for (int i = 0; i < config.partCount(); i++) {
             starts.add(bucketStart);
             bucketStart = advance(bucketStart, config);
@@ -85,6 +94,47 @@ public final class StatisticsPeriodBucketing {
             }
         }
         return index;
+    }
+
+    private static LocalDateTime alignUp(LocalDateTime dateTime, BucketConfig config) {
+        LocalDateTime floor = alignDown(dateTime, config);
+        if (!dateTime.isAfter(floor)) {
+            return floor;
+        }
+        return advance(floor, config);
+    }
+
+    private static LocalDateTime alignDown(LocalDateTime dateTime, BucketConfig config) {
+        return switch (config.unit()) {
+            case MINUTES -> {
+                int minute = dateTime.getMinute();
+                int alignedMinute = (minute / config.step()) * config.step();
+                yield dateTime.withMinute(alignedMinute).withSecond(0).withNano(0);
+            }
+            case HOURS -> {
+                int hour = dateTime.getHour();
+                int alignedHour = (hour / config.step()) * config.step();
+                yield dateTime.withHour(alignedHour).withMinute(0).withSecond(0).withNano(0);
+            }
+            case DAYS -> dateTime.truncatedTo(ChronoUnit.DAYS);
+            case WEEKS -> dateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    .truncatedTo(ChronoUnit.DAYS);
+            case MONTHS -> dateTime.withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+        };
+    }
+
+    private static LocalDateTime retreat(LocalDateTime dateTime, BucketConfig config, int steps) {
+        LocalDateTime result = dateTime;
+        for (int i = 0; i < steps; i++) {
+            result = switch (config.unit()) {
+                case MINUTES -> result.minusMinutes(config.step());
+                case HOURS -> result.minusHours(config.step());
+                case DAYS -> result.minusDays(config.step());
+                case WEEKS -> result.minusWeeks(config.step());
+                case MONTHS -> result.minusMonths(config.step());
+            };
+        }
+        return result;
     }
 
     private static LocalDateTime advance(LocalDateTime bucketStart, BucketConfig config) {

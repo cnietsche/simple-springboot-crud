@@ -17,26 +17,61 @@ class StatisticsPeriodBucketingTest {
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 6, 3, 12, 0);
 
     @Test
-    void shouldGenerateSixBucketsForLast30Minutes() {
+    void shouldGenerateSixAlignedBucketsForLast30Minutes() {
         List<LocalDateTime> starts = StatisticsPeriodBucketing.generateBucketStarts(StatisticsPeriod.LAST_30_MINUTES, NOW);
 
         assertThat(starts).hasSize(6);
-        assertThat(starts.getFirst()).isEqualTo(NOW.minusMinutes(30));
-        assertThat(starts.get(1)).isEqualTo(NOW.minusMinutes(25));
+        assertThat(starts.getFirst()).isEqualTo(LocalDateTime.of(2026, 6, 3, 11, 30));
+        assertThat(starts.getLast()).isEqualTo(LocalDateTime.of(2026, 6, 3, 11, 55));
     }
 
     @Test
-    void shouldGenerateTwelveBucketsForLastYear() {
+    void shouldCeilEndForBrokenMinuteLast30Minutes() {
+        LocalDateTime now = LocalDateTime.of(2026, 6, 3, 15, 27);
+
+        List<LocalDateTime> starts = StatisticsPeriodBucketing.generateBucketStarts(StatisticsPeriod.LAST_30_MINUTES, now);
+
+        assertThat(starts).hasSize(6);
+        assertThat(starts.getFirst()).isEqualTo(LocalDateTime.of(2026, 6, 3, 15, 0));
+        assertThat(starts.getLast()).isEqualTo(LocalDateTime.of(2026, 6, 3, 15, 25));
+        assertThat(StatisticsPeriodBucketing.resolveQueryFrom(StatisticsPeriod.LAST_30_MINUTES, now))
+                .isEqualTo(LocalDateTime.of(2026, 6, 3, 15, 0));
+    }
+
+    @Test
+    void shouldCeilEndForTwoHourBucketsOnLastDay() {
+        LocalDateTime now = LocalDateTime.of(2026, 6, 3, 15, 27);
+
+        List<LocalDateTime> starts = StatisticsPeriodBucketing.generateBucketStarts(StatisticsPeriod.LAST_DAY, now);
+
+        assertThat(starts).hasSize(12);
+        assertThat(starts.getLast()).isEqualTo(LocalDateTime.of(2026, 6, 3, 14, 0));
+        assertThat(starts.getFirst()).isEqualTo(LocalDateTime.of(2026, 6, 2, 16, 0));
+    }
+
+    @Test
+    void shouldCeilEndForLast12HoursToNextHour() {
+        LocalDateTime now = LocalDateTime.of(2026, 6, 3, 15, 27);
+
+        List<LocalDateTime> starts = StatisticsPeriodBucketing.generateBucketStarts(StatisticsPeriod.LAST_12_HOURS, now);
+
+        assertThat(starts).hasSize(12);
+        assertThat(starts.getLast()).isEqualTo(LocalDateTime.of(2026, 6, 3, 15, 0));
+        assertThat(starts.getFirst()).isEqualTo(LocalDateTime.of(2026, 6, 3, 4, 0));
+    }
+
+    @Test
+    void shouldGenerateTwelveMonthlyBucketsForLastYear() {
         List<LocalDateTime> starts = StatisticsPeriodBucketing.generateBucketStarts(StatisticsPeriod.LAST_YEAR, NOW);
 
         assertThat(starts).hasSize(12);
-        assertThat(starts.getFirst()).isEqualTo(NOW.minusYears(1));
-        assertThat(starts.get(1)).isEqualTo(NOW.minusYears(1).plusMonths(1));
+        assertThat(starts.getFirst()).isEqualTo(LocalDateTime.of(2025, 7, 1, 0, 0));
+        assertThat(starts.getLast()).isEqualTo(LocalDateTime.of(2026, 6, 1, 0, 0));
     }
 
     @Test
     void shouldAggregateLoginAttemptsPerBucket() {
-        LocalDateTime from = NOW.minusMinutes(30);
+        LocalDateTime from = StatisticsPeriodBucketing.resolveQueryFrom(StatisticsPeriod.LAST_30_MINUTES, NOW);
         List<LoginAttemptPoint> points = List.of(
                 new LoginAttemptPoint(from.plusMinutes(2), LoginAttemptOutcome.SUCCESS),
                 new LoginAttemptPoint(from.plusMinutes(2), LoginAttemptOutcome.FAIL),
@@ -65,11 +100,11 @@ class StatisticsPeriodBucketingTest {
 
     @Test
     void shouldAggregateOverloadCountsPerBucket() {
-        LocalDateTime from = NOW.minusHours(1);
+        List<LocalDateTime> starts = StatisticsPeriodBucketing.generateBucketStarts(StatisticsPeriod.LAST_HOUR, NOW);
         List<LocalDateTime> timestamps = List.of(
-                from.plusMinutes(5),
-                from.plusMinutes(5),
-                from.plusMinutes(15)
+                starts.getFirst().plusMinutes(5),
+                starts.getFirst().plusMinutes(5),
+                starts.get(1).plusMinutes(5)
         );
 
         List<TimeSeriesBucketView> buckets =

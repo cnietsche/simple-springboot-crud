@@ -23,7 +23,7 @@ public class GetOverloadStatisticsService implements GetOverloadStatisticsUseCas
     @Override
     public OverloadStatisticsView execute(StatisticsPeriod period, UUID userId) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = StatisticsPeriodResolver.resolveStart(period, now);
+        LocalDateTime from = StatisticsPeriodBucketing.resolveQueryFrom(period, now);
 
         var topUsers = overloadRepository.countByUserBetween(from, now, userId, TOP_USERS_LIMIT);
         var dates = overloadRepository.findDatesBetween(from, now, userId);

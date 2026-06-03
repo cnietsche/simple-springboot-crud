@@ -21,7 +21,7 @@ public class GetLoginAttemptsMetricsService implements GetLoginAttemptsMetricsUs
     @Override
     public List<LoginAttemptsBucketView> execute(StatisticsPeriod period) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = StatisticsPeriodResolver.resolveStart(period, now);
+        LocalDateTime from = StatisticsPeriodBucketing.resolveQueryFrom(period, now);
         var points = loginAttemptRepository.findBetween(from, now);
         return StatisticsPeriodBucketing.aggregateLoginAttempts(period, now, points);
     }
