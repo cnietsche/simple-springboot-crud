@@ -1,0 +1,38 @@
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.summary {
+  margin: 0 0 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.success {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.fail {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.error {
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.empty {
+  color: #64748b;
+  padding: 2rem 0;
+  text-align: center;
+}

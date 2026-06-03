@@ -15,22 +15,12 @@ import { ApiError } from '../api/client';
 import { getOverloadStatistics } from '../api/overload';
 import { listUsers } from '../api/users';
 import type { OverloadStatistics, UserSummary } from '../types/overload';
+import { PeriodFilterSelect } from './PeriodFilterSelect';
+import { DASHBOARD_REFRESH_MS } from '../constants/dashboard';
 import type { StatisticsPeriod } from '../types/statistics';
 import styles from './AdminOverloadDashboard.module.css';
 
-const PERIOD_OPTIONS: { value: StatisticsPeriod; label: string }[] = [
-  { value: 'LAST_30_MINUTES', label: 'Últimos 30 minutos' },
-  { value: 'LAST_HOUR', label: 'Última hora' },
-  { value: 'LAST_12_HOURS', label: 'Últimas 12 horas' },
-  { value: 'LAST_DAY', label: 'Últimas 24 horas' },
-  { value: 'THIS_WEEK', label: 'Esta semana' },
-  { value: 'THIS_MONTH', label: 'Este mês' },
-  { value: 'THIS_YEAR', label: 'Este ano' },
-];
-
 const PIE_COLORS = ['#2563eb', '#7c3aed', '#db2777', '#ea580c', '#16a34a'];
-
-const REFRESH_MS = 5000;
 
 export function AdminOverloadDashboard() {
   const [period, setPeriod] = useState<StatisticsPeriod>('LAST_HOUR');
@@ -57,7 +47,7 @@ export function AdminOverloadDashboard() {
 
   useEffect(() => {
     loadStats();
-    const interval = setInterval(loadStats, REFRESH_MS);
+    const interval = setInterval(loadStats, DASHBOARD_REFRESH_MS);
     return () => clearInterval(interval);
   }, [loadStats]);
 
@@ -79,20 +69,7 @@ export function AdminOverloadDashboard() {
   return (
     <div className={styles.dashboard}>
       <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <label htmlFor="period-filter">Período</label>
-          <select
-            id="period-filter"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as StatisticsPeriod)}
-          >
-            {PERIOD_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <PeriodFilterSelect period={period} onPeriodChange={setPeriod} />
         <div className={styles.filterGroup}>
           <label htmlFor="user-filter">Usuário</label>
           <select

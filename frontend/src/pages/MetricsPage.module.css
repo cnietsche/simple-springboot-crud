@@ -1,0 +1,38 @@
+.metrics h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: #64748b;
+}
+
+.toolbar {
+  margin-bottom: 1.5rem;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.placeholderCard {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px dashed #cbd5e1;
+}
+
+.placeholderCard h2 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.placeholder {
+  margin: 0;
+  color: #64748b;
+}

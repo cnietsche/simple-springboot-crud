@@ -22,7 +22,7 @@ function GearIcon() {
 }
 
 export function TopMenu({ onOpenSettings }: TopMenuProps) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -41,6 +41,14 @@ export function TopMenu({ onOpenSettings }: TopMenuProps) {
         >
           Início
         </NavLink>
+        {user?.type === 'ADMIN' && (
+          <NavLink
+            to="/metrics"
+            className={({ isActive }) => (isActive ? styles.active : styles.link)}
+          >
+            Métricas
+          </NavLink>
+        )}
       </nav>
       <div className={styles.right}>
         <button
