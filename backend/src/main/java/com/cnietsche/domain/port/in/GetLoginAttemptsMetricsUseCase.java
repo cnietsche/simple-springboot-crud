@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface GetLoginAttemptsMetricsUseCase {
 
-    List<LoginAttemptsMetricView> execute(StatisticsPeriod period);
+    List<LoginAttemptsBucketView> execute(StatisticsPeriod period);
 }

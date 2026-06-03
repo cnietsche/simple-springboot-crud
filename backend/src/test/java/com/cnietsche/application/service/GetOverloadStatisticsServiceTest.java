@@ -35,20 +35,20 @@ class GetOverloadStatisticsServiceTest {
     }
 
     @Test
-    void shouldReturnStatistics() {
+    void shouldReturnStatisticsWithBucketedTimeSeries() {
         UUID userId = UUID.randomUUID();
         var topUsers = List.of(new UserOverloadCountView(userId, "John", 10L));
-        var timeSeries = List.of(new TimeSeriesBucketView(LocalDateTime.now(), 5L));
+        var dates = List.of(LocalDateTime.now().minusMinutes(5));
 
         when(overloadRepository.countByUserBetween(any(), any(), eq(null), eq(5)))
                 .thenReturn(topUsers);
-        when(overloadRepository.countByTimeBuckets(any(), any(), eq(null)))
-                .thenReturn(timeSeries);
+        when(overloadRepository.findDatesBetween(any(), any(), eq(null)))
+                .thenReturn(dates);
 
         OverloadStatisticsView result = service.execute(StatisticsPeriod.LAST_HOUR, null);
 
         assertThat(result.topUsers()).hasSize(1);
-        assertThat(result.timeSeries()).hasSize(1);
-        verify(overloadRepository).countByUserBetween(any(), any(), eq(null), eq(5));
+        assertThat(result.timeSeries()).hasSize(6);
+        verify(overloadRepository).findDatesBetween(any(), any(), eq(null));
     }
 }

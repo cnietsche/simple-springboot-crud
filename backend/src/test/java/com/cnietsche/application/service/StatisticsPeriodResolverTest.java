@@ -17,9 +17,23 @@ class StatisticsPeriodResolverTest {
     }
 
     @Test
-    void shouldResolveThisMonth() {
+    void shouldResolveLastMonthAsRollingWindow() {
         LocalDateTime now = LocalDateTime.of(2026, 6, 15, 10, 0);
-        LocalDateTime start = StatisticsPeriodResolver.resolveStart(StatisticsPeriod.THIS_MONTH, now);
-        assertThat(start).isEqualTo(LocalDateTime.of(2026, 6, 1, 0, 0));
+        LocalDateTime start = StatisticsPeriodResolver.resolveStart(StatisticsPeriod.LAST_MONTH, now);
+        assertThat(start).isEqualTo(now.minusMonths(1));
+    }
+
+    @Test
+    void shouldResolveLastWeekAsRollingWindow() {
+        LocalDateTime now = LocalDateTime.of(2026, 6, 15, 10, 0);
+        LocalDateTime start = StatisticsPeriodResolver.resolveStart(StatisticsPeriod.LAST_WEEK, now);
+        assertThat(start).isEqualTo(now.minusDays(7));
+    }
+
+    @Test
+    void shouldResolveLastYearAsRollingWindow() {
+        LocalDateTime now = LocalDateTime.of(2026, 6, 15, 10, 0);
+        LocalDateTime start = StatisticsPeriodResolver.resolveStart(StatisticsPeriod.LAST_YEAR, now);
+        assertThat(start).isEqualTo(now.minusYears(1));
     }
 }

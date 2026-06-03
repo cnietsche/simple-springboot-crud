@@ -1,12 +1,12 @@
 package com.cnietsche.adapter.out.persistence;
 
 import com.cnietsche.domain.model.LoginAttemptOutcome;
+import com.cnietsche.domain.port.out.LoginAttemptPoint;
 import com.cnietsche.domain.port.out.LoginAttemptRepositoryPort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -24,11 +24,9 @@ public class LoginAttemptPersistenceAdapter implements LoginAttemptRepositoryPor
     }
 
     @Override
-    public Map<LoginAttemptOutcome, Long> countByOutcomeBetween(LocalDateTime from, LocalDateTime to) {
-        Map<LoginAttemptOutcome, Long> counts = new EnumMap<>(LoginAttemptOutcome.class);
-        for (LoginAttemptCountProjection row : repository.countByOutcomeBetween(from, to)) {
-            counts.put(row.getOutcome(), row.getCnt());
-        }
-        return counts;
+    public List<LoginAttemptPoint> findBetween(LocalDateTime from, LocalDateTime to) {
+        return repository.findPointsBetween(from, to).stream()
+                .map(p -> new LoginAttemptPoint(p.getOccurredAt(), p.getOutcome()))
+                .toList();
     }
 }

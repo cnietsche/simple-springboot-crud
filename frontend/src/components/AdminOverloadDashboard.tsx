@@ -18,6 +18,7 @@ import type { OverloadStatistics, UserSummary } from '../types/overload';
 import { PeriodFilterSelect } from './PeriodFilterSelect';
 import { DASHBOARD_REFRESH_MS } from '../constants/dashboard';
 import type { StatisticsPeriod } from '../types/statistics';
+import { formatBucketLabel, timeSeriesChartTitle } from '../utils/formatBucketLabel';
 import styles from './AdminOverloadDashboard.module.css';
 
 const PIE_COLORS = ['#2563eb', '#7c3aed', '#db2777', '#ea580c', '#16a34a'];
@@ -59,10 +60,7 @@ export function AdminOverloadDashboard() {
 
   const lineData =
     stats?.timeSeries.map((b) => ({
-      time: new Date(b.bucketStart).toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      time: formatBucketLabel(b.bucketStart, period),
       count: b.count,
     })) ?? [];
 
@@ -118,7 +116,7 @@ export function AdminOverloadDashboard() {
         </section>
 
         <section className={styles.chartCard}>
-          <h2>Registros por intervalo de 15 minutos</h2>
+          <h2>{timeSeriesChartTitle(period)}</h2>
           {lineData.length === 0 ? (
             <p className={styles.empty}>Sem dados no período.</p>
           ) : (

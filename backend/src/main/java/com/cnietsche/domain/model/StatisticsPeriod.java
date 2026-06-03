@@ -8,7 +8,7 @@ public enum StatisticsPeriod {
     LAST_HOUR,
     LAST_12_HOURS,
     LAST_DAY,
-    THIS_WEEK,
-    THIS_MONTH,
-    THIS_YEAR
+    LAST_WEEK,
+    LAST_MONTH,
+    LAST_YEAR
 }

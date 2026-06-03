@@ -309,7 +309,8 @@ Estados locais: `error`, `loading` (e `success` onde aplicável).
 | `listUsers` | GET | `/api/users` | `AdminOverloadDashboard` |
 | `generateOverload` | POST | `/api/overloads/generate` | `UserOverloadPanel` |
 | `listOverloads` | GET | `/api/overloads` | `UserOverloadPanel` |
-| `getOverloadStatistics` | GET | `/api/overloads/statistics` | `AdminOverloadDashboard` (refresh 5s) |
+| `getOverloadStatistics` | GET | `/api/overloads/statistics` | `AdminOverloadDashboard` (refresh 30s) |
+| `getLoginAttemptsMetrics` | GET | `/api/metrics/login-attempts` | `LoginAttemptsLineChart` (refresh 30s) |
 
 ### Proxy
 

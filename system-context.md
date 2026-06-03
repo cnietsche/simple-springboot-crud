@@ -59,7 +59,8 @@ Domínios de produto: **usuário** e **overload** (teste de resiliência). Infra
 | Alterar tipo | Modal Configurações | `PATCH /api/users/{id}/type` | Atualiza banco e Context |
 | Gerar overload | Home (USER) | `POST /api/overloads/generate` | `userId` + `count` (50/100/400/1000) |
 | Listar overload | Home (USER) | `GET /api/overloads` | Paginado por `userId`, 50/página, `date` DESC |
-| Estatísticas overload | Home (ADMIN) | `GET /api/overloads/statistics` | `period` + `userId` opcional; refresh 5s na UI |
+| Estatísticas overload | Home (ADMIN) | `GET /api/overloads/statistics` | `period` + `userId` opcional; refresh 30s na UI |
+| Métricas login | Métricas (ADMIN) | `GET /api/metrics/login-attempts` | `period`; buckets `success`/`fail`; refresh 30s |
 | Listar usuários | Dashboard ADMIN | `GET /api/users` | `id` + `name`, ordem alfabética |
 | Consultar por ID | **Não usado** | `GET /api/users/{id}` | Cliente `getUser` existe; sem tela |
 

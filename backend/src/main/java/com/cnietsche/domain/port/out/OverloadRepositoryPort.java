@@ -2,7 +2,6 @@ package com.cnietsche.domain.port.out;
 
 import com.cnietsche.domain.model.Overload;
 import com.cnietsche.domain.port.in.OverloadPageView;
-import com.cnietsche.domain.port.in.TimeSeriesBucketView;
 import com.cnietsche.domain.port.in.UserOverloadCountView;
 
 import java.time.LocalDateTime;
@@ -17,5 +16,5 @@ public interface OverloadRepositoryPort {
 
     List<UserOverloadCountView> countByUserBetween(LocalDateTime from, LocalDateTime to, UUID userId, int limit);
 
-    List<TimeSeriesBucketView> countByTimeBuckets(LocalDateTime from, LocalDateTime to, UUID userId);
+    List<LocalDateTime> findDatesBetween(LocalDateTime from, LocalDateTime to, UUID userId);
 }

@@ -4,13 +4,13 @@ import { getLoginAttemptsMetrics } from '../../api/metrics';
 import { ApiError } from '../../api/client';
 import { DASHBOARD_REFRESH_MS } from '../../constants/dashboard';
 import type { StatisticsPeriod } from '../../types/statistics';
+import { formatBucketLabel, loginAttemptsChartTitle } from '../../utils/formatBucketLabel';
 import styles from './LoginAttemptsLineChart.module.css';
 
 const SUCCESS_COLOR = '#16a34a';
 const FAIL_COLOR = '#dc2626';
-const MAX_HISTORY_POINTS = 40;
 
-interface Snapshot {
+interface ChartPoint {
   time: string;
   success: number;
   fail: number;
@@ -20,39 +20,28 @@ interface LoginAttemptsLineChartProps {
   period: StatisticsPeriod;
 }
 
-function parseCounts(metrics: { outcome: string; count: number }[]): { success: number; fail: number } {
-  const success = metrics.find((m) => m.outcome === 'Success')?.count ?? 0;
-  const fail = metrics.find((m) => m.outcome === 'Fail')?.count ?? 0;
-  return { success, fail };
-}
-
-function formatTimeLabel(date: Date): string {
-  return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
-
 export function LoginAttemptsLineChart({ period }: LoginAttemptsLineChartProps) {
-  const [history, setHistory] = useState<Snapshot[]>([]);
+  const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [latest, setLatest] = useState<{ success: number; fail: number } | null>(null);
+  const [totals, setTotals] = useState<{ success: number; fail: number } | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const data = await getLoginAttemptsMetrics(period);
-      const { success, fail } = parseCounts(data);
-      const now = new Date();
-      setLatest({ success, fail });
-      setHistory((prev) =>
-        [...prev, { time: formatTimeLabel(now), success, fail }].slice(-MAX_HISTORY_POINTS)
+      const buckets = await getLoginAttemptsMetrics(period);
+      setChartData(
+        buckets.map((b) => ({
+          time: formatBucketLabel(b.bucketStart, period),
+          success: b.success,
+          fail: b.fail,
+        }))
       );
+      const success = buckets.reduce((sum, b) => sum + b.success, 0);
+      const fail = buckets.reduce((sum, b) => sum + b.fail, 0);
+      setTotals({ success, fail });
       setError(null);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Erro ao carregar tentativas de login');
     }
-  }, [period]);
-
-  useEffect(() => {
-    setHistory([]);
-    setLatest(null);
   }, [period]);
 
   useEffect(() => {
@@ -63,19 +52,20 @@ export function LoginAttemptsLineChart({ period }: LoginAttemptsLineChartProps) 
 
   return (
     <section className={styles.card}>
-      <h2>Tentativas de login</h2>
-      {latest && (
+      <h2>{loginAttemptsChartTitle(period)}</h2>
+      {totals && (
         <p className={styles.summary}>
-          Total no período: <span className={styles.success}>{latest.success} sucesso</span>
+          Total no período: <span className={styles.success}>{totals.success} sucesso</span>
           {' · '}
-          <span className={styles.fail}>{latest.fail} falha</span>
+          <span className={styles.fail}>{totals.fail} falha</span>
         </p>
       )}
       {error && <p className={styles.error}>{error}</p>}
-      {history.length === 0 && !error && <p className={styles.empty}>Carregando...</p>}
-      {history.length > 0 && !error && (
+      {chartData.length === 0 && !error ? (
+        <p className={styles.empty}>Carregando...</p>
+      ) : chartData.length > 0 && !error ? (
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={history}>
+          <LineChart data={chartData}>
             <XAxis dataKey="time" interval="preserveStartEnd" />
             <YAxis allowDecimals={false} />
             <Tooltip />
@@ -98,7 +88,7 @@ export function LoginAttemptsLineChart({ period }: LoginAttemptsLineChartProps) 
             />
           </LineChart>
         </ResponsiveContainer>
-      )}
+      ) : null}
     </section>
   );
 }

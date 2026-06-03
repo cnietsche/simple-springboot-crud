@@ -11,12 +11,11 @@ import java.util.UUID;
 public interface SpringDataLoginAttemptRepository extends JpaRepository<LoginAttemptJpaEntity, UUID> {
 
     @Query("""
-            SELECT l.outcome AS outcome, COUNT(l) AS cnt
+            SELECT l.occurredAt AS occurredAt, l.outcome AS outcome
             FROM LoginAttemptJpaEntity l
             WHERE l.occurredAt >= :from AND l.occurredAt <= :to
-            GROUP BY l.outcome
             """)
-    List<LoginAttemptCountProjection> countByOutcomeBetween(
+    List<LoginAttemptPointProjection> findPointsBetween(
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to);
 }

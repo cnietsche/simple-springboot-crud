@@ -3,7 +3,6 @@ package com.cnietsche.adapter.out.persistence;
 import com.cnietsche.domain.model.Overload;
 import com.cnietsche.domain.port.in.OverloadPageView;
 import com.cnietsche.domain.port.in.OverloadView;
-import com.cnietsche.domain.port.in.TimeSeriesBucketView;
 import com.cnietsche.domain.port.in.UserOverloadCountView;
 import com.cnietsche.domain.port.out.OverloadRepositoryPort;
 import org.springframework.data.domain.Page;
@@ -11,18 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
 public class OverloadPersistenceAdapter implements OverloadRepositoryPort {
 
     private static final int BATCH_SIZE = 100;
-    private static final int BUCKET_MINUTES = 15;
 
     private final SpringDataOverloadRepository repository;
     private final SpringDataUserRepository userRepository;
@@ -72,33 +67,8 @@ public class OverloadPersistenceAdapter implements OverloadRepositoryPort {
     }
 
     @Override
-    public List<TimeSeriesBucketView> countByTimeBuckets(
-            LocalDateTime from, LocalDateTime to, UUID userId) {
-        List<LocalDateTime> dates = repository.findDatesBetween(from, to, userId);
-        Map<LocalDateTime, Long> bucketCounts = new HashMap<>();
-        for (LocalDateTime date : dates) {
-            LocalDateTime bucket = truncateToBucket(date);
-            bucketCounts.merge(bucket, 1L, Long::sum);
-        }
-
-        List<TimeSeriesBucketView> series = new ArrayList<>();
-        LocalDateTime bucketStart = truncateToBucket(from);
-        LocalDateTime endBucket = truncateToBucket(to);
-        while (!bucketStart.isAfter(endBucket)) {
-            long count = bucketCounts.getOrDefault(bucketStart, 0L);
-            series.add(new TimeSeriesBucketView(bucketStart, count));
-            bucketStart = bucketStart.plusMinutes(BUCKET_MINUTES);
-        }
-        return series;
-    }
-
-    private static LocalDateTime truncateToBucket(LocalDateTime dateTime) {
-        long minutes = dateTime.getHour() * 60L + dateTime.getMinute();
-        long bucketMinutes = (minutes / BUCKET_MINUTES) * BUCKET_MINUTES;
-        return dateTime.truncatedTo(ChronoUnit.DAYS)
-                .plusMinutes(bucketMinutes)
-                .withSecond(0)
-                .withNano(0);
+    public List<LocalDateTime> findDatesBetween(LocalDateTime from, LocalDateTime to, UUID userId) {
+        return repository.findDatesBetween(from, to, userId);
     }
 
     private OverloadJpaEntity toEntity(Overload overload) {

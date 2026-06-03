@@ -4,9 +4,9 @@ export type StatisticsPeriod =
   | 'LAST_HOUR'
   | 'LAST_12_HOURS'
   | 'LAST_DAY'
-  | 'THIS_WEEK'
-  | 'THIS_MONTH'
-  | 'THIS_YEAR';
+  | 'LAST_WEEK'
+  | 'LAST_MONTH'
+  | 'LAST_YEAR';
 
 /** Shared batch sizes for bulk record generation. */
 export type RecordBatchCount = 50 | 100 | 400 | 1000;

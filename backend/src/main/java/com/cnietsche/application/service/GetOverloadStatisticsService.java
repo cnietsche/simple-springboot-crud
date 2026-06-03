@@ -26,7 +26,8 @@ public class GetOverloadStatisticsService implements GetOverloadStatisticsUseCas
         LocalDateTime from = StatisticsPeriodResolver.resolveStart(period, now);
 
         var topUsers = overloadRepository.countByUserBetween(from, now, userId, TOP_USERS_LIMIT);
-        var timeSeries = overloadRepository.countByTimeBuckets(from, now, userId);
+        var dates = overloadRepository.findDatesBetween(from, now, userId);
+        var timeSeries = StatisticsPeriodBucketing.aggregateCounts(period, now, dates);
 
         return new OverloadStatisticsView(topUsers, timeSeries);
     }
