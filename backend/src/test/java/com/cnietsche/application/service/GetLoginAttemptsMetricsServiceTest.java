@@ -54,17 +54,21 @@ class GetLoginAttemptsMetricsServiceTest {
 
     @Test
     void shouldAggregateAttemptsIntoBuckets() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = now.minusMinutes(30);
-        when(loginAttemptRepository.findBetween(any(), any())).thenReturn(List.of(
-                new LoginAttemptPoint(from.plusMinutes(1), LoginAttemptOutcome.SUCCESS),
-                new LoginAttemptPoint(from.plusMinutes(1), LoginAttemptOutcome.FAIL)
-        ));
+        when(loginAttemptRepository.findBetween(any(), any())).thenAnswer(invocation -> {
+            LocalDateTime from = invocation.getArgument(0);
+            return List.of(
+                    new LoginAttemptPoint(from.plusMinutes(2), LoginAttemptOutcome.SUCCESS),
+                    new LoginAttemptPoint(from.plusMinutes(2), LoginAttemptOutcome.FAIL),
+                    new LoginAttemptPoint(from.plusMinutes(8), LoginAttemptOutcome.SUCCESS)
+            );
+        });
 
         List<LoginAttemptsBucketView> result = service.execute(StatisticsPeriod.LAST_30_MINUTES);
 
         assertThat(result).hasSize(6);
         assertThat(result.getFirst().success()).isEqualTo(1);
         assertThat(result.getFirst().fail()).isEqualTo(1);
+        assertThat(result.get(1).success()).isEqualTo(1);
+        assertThat(result.get(1).fail()).isZero();
     }
 }
