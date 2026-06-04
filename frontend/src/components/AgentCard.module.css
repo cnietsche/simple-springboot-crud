@@ -1,0 +1,68 @@
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.id {
+  font-size: 0.75rem;
+  color: #64748b;
+  word-break: break-all;
+  flex: 1;
+}
+
+.busyDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f97316;
+  flex-shrink: 0;
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.deleteButton:hover {
+  color: #dc2626;
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.sliderRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sliderLabel {
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.slider {
+  width: 100%;
+  cursor: pointer;
+}

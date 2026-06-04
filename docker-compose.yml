@@ -13,6 +13,22 @@ services:
     networks:
       - app-network
 
+  agent-simulator:
+    build:
+      context: ./agent-simulator
+      dockerfile: Dockerfile
+    environment:
+      BACKEND_BASE_URL: http://backend:8080
+      SQLITE_PATH: /data/simulator.db
+    expose:
+      - "8081"
+    volumes:
+      - agent-simulator-data:/data
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./frontend
@@ -21,6 +37,7 @@ services:
       - "8080:80"
     depends_on:
       - backend
+      - agent-simulator
     networks:
       - app-network
 
@@ -29,3 +46,4 @@ networks:
 
 volumes:
   backend-data:
+  agent-simulator-data:

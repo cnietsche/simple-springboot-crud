@@ -42,12 +42,20 @@ export function TopMenu({ onOpenSettings }: TopMenuProps) {
           Início
         </NavLink>
         {user?.type === 'ADMIN' && (
-          <NavLink
-            to="/metrics"
-            className={({ isActive }) => (isActive ? styles.active : styles.link)}
-          >
-            Métricas
-          </NavLink>
+          <>
+            <NavLink
+              to="/metrics"
+              className={({ isActive }) => (isActive ? styles.active : styles.link)}
+            >
+              Métricas
+            </NavLink>
+            <NavLink
+              to="/agents"
+              className={({ isActive }) => (isActive ? styles.active : styles.link)}
+            >
+              Agents
+            </NavLink>
+          </>
         )}
       </nav>
       <div className={styles.right}>

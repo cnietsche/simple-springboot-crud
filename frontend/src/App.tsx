@@ -4,6 +4,7 @@ import { AppLayout } from './components/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { AgentsPage } from './pages/AgentsPage';
 import { MetricsPage } from './pages/MetricsPage';
 
 export default function App() {
@@ -23,6 +24,14 @@ export default function App() {
           element={
             <AdminRoute>
               <MetricsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/agents"
+          element={
+            <AdminRoute>
+              <AgentsPage />
             </AdminRoute>
           }
         />
